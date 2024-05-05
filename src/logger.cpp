@@ -6,7 +6,7 @@ namespace simplytest
 {
     logger::logger()
     {
-        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("td-patch.log");
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("profui-patch.log");
         file_sink->set_level(spdlog::level::trace);
 
         m_logger = std::make_unique<spdlog::logger>("simplytest", file_sink);

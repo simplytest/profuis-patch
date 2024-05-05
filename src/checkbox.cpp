@@ -5,6 +5,7 @@
 
 #include <lockpp/lock.hpp>
 #include <unordered_map>
+#include <mutex>
 
 namespace simplytest
 {
@@ -15,15 +16,15 @@ namespace simplytest
         using map_t = std::unordered_map<HWND, std::shared_ptr<checkbox>>;
 
       public:
-        static inline lockpp::lock<map_t> instances;
+        static inline lockpp::lock<map_t, std::recursive_mutex> instances{};
 
       public:
         lockpp::lock<box_state> state;
         HWND hwnd;
 
       public:
-        WNDPROC wnd_proc;
         checkbox_uia *provider;
+        WNDPROC wnd_proc;
 
       public:
         static LRESULT hk_wndproc(HWND, UINT, WPARAM, LPARAM);
@@ -124,7 +125,7 @@ namespace simplytest
         }
 
         const auto was_checked = instance->checked();
-        instances->at(hwnd)->m_impl->state.assign(data->state);
+        instance->m_impl->state.assign(data->state);
 
         if (!uia_core::get().UiaClientsAreListening() || (was_checked && instance->checked()))
         {

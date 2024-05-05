@@ -53,7 +53,7 @@ CPMFindPackage(
 
 CPMFindPackage(
   NAME           lime
-  VERSION        3.0
+  VERSION        3.1
   GIT_REPOSITORY "https://github.com/Curve/lime"
 )
 

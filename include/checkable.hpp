@@ -10,7 +10,13 @@ namespace simplytest
     using profuis::box_state;
     using profuis::checkable_data;
 
-    class checkbox
+    enum class checkable_type
+    {
+        check,
+        radio,
+    };
+
+    class checkable
     {
         struct impl;
 
@@ -18,10 +24,10 @@ namespace simplytest
         std::unique_ptr<impl> m_impl;
 
       private:
-        checkbox();
+        checkable();
 
       public:
-        ~checkbox();
+        ~checkable();
 
       public:
         void toggle() const;
@@ -32,6 +38,6 @@ namespace simplytest
         [[nodiscard]] box_state state() const;
 
       public:
-        static void update(checkable_data *);
+        static void update(checkable_data *, checkable_type);
     };
 } // namespace simplytest

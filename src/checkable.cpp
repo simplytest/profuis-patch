@@ -1,4 +1,4 @@
-#include "checkbox.hpp"
+#include "checkable.hpp"
 
 #include "logger.hpp"
 #include "uia.hpp"
@@ -11,9 +11,9 @@ namespace simplytest
 {
     using profuis::box_state;
 
-    struct checkbox::impl
+    struct checkable::impl
     {
-        using map_t = std::unordered_map<HWND, std::shared_ptr<checkbox>>;
+        using map_t = std::unordered_map<HWND, std::shared_ptr<checkable>>;
 
       public:
         static inline lockpp::lock<map_t, std::recursive_mutex> instances{};
@@ -23,14 +23,14 @@ namespace simplytest
         HWND hwnd;
 
       public:
-        checkbox_uia *provider;
+        toggle_uia *provider;
         WNDPROC wnd_proc;
 
       public:
         static LRESULT hk_wndproc(HWND, UINT, WPARAM, LPARAM);
     };
 
-    LRESULT checkbox::impl::hk_wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+    LRESULT checkable::impl::hk_wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     {
         auto locked = instances.write();
 
@@ -44,7 +44,7 @@ namespace simplytest
 
         if (message == WM_DESTROY)
         {
-            logger::get()->trace("[{:x}] received WM_DESTROY", addr);
+            logger::get()->trace("[{:x}] received destroy signal", addr);
             locked->erase(hwnd);
 
             return 0;
@@ -52,31 +52,32 @@ namespace simplytest
 
         if (message == WM_GETOBJECT)
         {
-            logger::get()->trace("[{:x}] received WM_GETOBJECT", addr);
+            logger::get()->trace("[{:x}] received accessibility request", addr);
             return uia_core::get().UiaReturnRawElementProvider(hwnd, wparam, lparam, self->provider);
         }
 
         return CallWindowProcW(self->wnd_proc, hwnd, message, wparam, lparam);
     }
 
-    checkbox::checkbox() : m_impl(std::make_unique<impl>()) {}
+    checkable::checkable() : m_impl(std::make_unique<impl>()) {}
 
-    checkbox::~checkbox()
+    checkable::~checkable()
     {
         m_impl->provider->Release();
     }
 
-    void checkbox::toggle() const
+    void checkable::toggle() const
     {
+        logger::get()->debug("[{:x}] received toggle request");
         SendMessageW(m_impl->hwnd, BM_SETCHECK, checked() ? BST_UNCHECKED : BST_CHECKED, 0);
     }
 
-    HWND checkbox::hwnd() const
+    HWND checkable::hwnd() const
     {
         return m_impl->hwnd;
     }
 
-    bool checkbox::checked() const
+    bool checkable::checked() const
     {
         auto state = m_impl->state.copy();
 
@@ -88,12 +89,12 @@ namespace simplytest
                state == box_state::BOX_MOUSE_HOVER_CHECKED;
     }
 
-    box_state checkbox::state() const
+    box_state checkable::state() const
     {
         return m_impl->state.copy();
     }
 
-    void checkbox::update(checkable_data *data)
+    void checkable::update(checkable_data *data, checkable_type type)
     {
         auto instances = impl::instances.write();
         auto *hwnd     = data->object->hwnd;
@@ -103,11 +104,11 @@ namespace simplytest
             logger::get()->info(L"creating instance {:x} (content: '{}')", reinterpret_cast<std::uintptr_t>(hwnd),
                                 data->text);
 
-            auto state = std::shared_ptr<checkbox>(new checkbox);
+            auto state = std::shared_ptr<checkable>(new checkable);
 
             state->m_impl->hwnd = hwnd;
             state->m_impl->state.assign(data->state);
-            state->m_impl->provider = new checkbox_uia(state);
+            state->m_impl->provider = new toggle_uia(state, type);
 
             auto wnd_proc = GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
 

@@ -1,11 +1,13 @@
 #pragma once
 
+#include "checkable.hpp"
+
 #include <memory>
 #include <uiautomation.h>
 
 namespace simplytest
 {
-    class checkbox;
+    class checkable;
 
     class uia_core
     {
@@ -23,7 +25,7 @@ namespace simplytest
         static uia_core &get();
     };
 
-    class checkbox_uia : public IRawElementProviderSimple, public IUIAutomationTogglePattern, public IToggleProvider
+    class toggle_uia : public IRawElementProviderSimple, public IUIAutomationTogglePattern, public IToggleProvider
     {
         struct impl;
 
@@ -31,10 +33,10 @@ namespace simplytest
         std::unique_ptr<impl> m_impl;
 
       public:
-        virtual ~checkbox_uia();
+        virtual ~toggle_uia();
 
       public:
-        checkbox_uia(std::shared_ptr<checkbox>);
+        toggle_uia(std::shared_ptr<checkable>, checkable_type);
 
       public:
         IFACEMETHODIMP_(ULONG) AddRef() override;

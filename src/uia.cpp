@@ -1,8 +1,7 @@
 #include "uia.hpp"
-#include "checkbox.hpp"
 
-#include <lime/module.hpp>
 #include <atomic>
+#include <lime/module.hpp>
 
 namespace simplytest
 {
@@ -37,30 +36,33 @@ namespace simplytest
         return *instance;
     }
 
-    struct checkbox_uia::impl
+    struct toggle_uia::impl
     {
-        std::shared_ptr<checkbox> parent;
+        std::shared_ptr<checkable> parent;
+        checkable_type type;
 
       public:
         ToggleState cached;
         std::atomic_size_t ref_count;
     };
 
-    checkbox_uia::~checkbox_uia() = default;
+    toggle_uia::~toggle_uia() = default;
 
-    checkbox_uia::checkbox_uia(std::shared_ptr<checkbox> parent) : m_impl(std::make_unique<impl>())
+    toggle_uia::toggle_uia(std::shared_ptr<checkable> parent, checkable_type type) : m_impl(std::make_unique<impl>())
     {
         m_impl->parent = std::move(parent);
+        m_impl->type   = type;
+
         get_CurrentToggleState(&m_impl->cached);
     }
 
-    IFACEMETHODIMP_(ULONG) checkbox_uia::AddRef()
+    IFACEMETHODIMP_(ULONG) toggle_uia::AddRef()
     {
         m_impl->ref_count++;
         return S_OK;
     }
 
-    IFACEMETHODIMP_(ULONG) checkbox_uia::Release()
+    IFACEMETHODIMP_(ULONG) toggle_uia::Release()
     {
         auto count = m_impl->ref_count.fetch_sub(1);
 
@@ -72,7 +74,7 @@ namespace simplytest
         return count;
     }
 
-    IFACEMETHODIMP checkbox_uia::QueryInterface(REFIID id, void **ret)
+    IFACEMETHODIMP toggle_uia::QueryInterface(REFIID id, void **ret)
     {
         if (id == __uuidof(IUnknown) || id == __uuidof(IRawElementProviderSimple))
         {
@@ -97,24 +99,24 @@ namespace simplytest
         return S_OK;
     }
 
-    HRESULT checkbox_uia::Toggle()
+    HRESULT toggle_uia::Toggle()
     {
         m_impl->parent->toggle();
         return S_OK;
     }
 
-    HRESULT checkbox_uia::get_ToggleState(ToggleState *ret)
+    HRESULT toggle_uia::get_ToggleState(ToggleState *ret)
     {
         return get_CurrentToggleState(ret);
     }
 
-    HRESULT checkbox_uia::get_CachedToggleState(ToggleState *ret)
+    HRESULT toggle_uia::get_CachedToggleState(ToggleState *ret)
     {
         *ret = m_impl->cached;
         return S_OK;
     }
 
-    HRESULT checkbox_uia::get_CurrentToggleState(ToggleState *ret)
+    HRESULT toggle_uia::get_CurrentToggleState(ToggleState *ret)
     {
         m_impl->cached = m_impl->parent->checked() ? ToggleState_On : ToggleState_Off;
         *ret           = m_impl->cached;
@@ -122,7 +124,7 @@ namespace simplytest
         return S_OK;
     }
 
-    IFACEMETHODIMP checkbox_uia::GetPropertyValue(PROPERTYID id, VARIANT *ret)
+    IFACEMETHODIMP toggle_uia::GetPropertyValue(PROPERTYID id, VARIANT *ret)
     {
         ret->vt = VT_EMPTY;
 
@@ -138,14 +140,15 @@ namespace simplytest
         }
         else if (id == UIA_ControlTypePropertyId)
         {
-            ret->lVal = UIA_CheckBoxControlTypeId;
-            ret->vt   = VT_I4;
+            ret->lVal =
+                m_impl->type == checkable_type::check ? UIA_CheckBoxControlTypeId : UIA_RadioButtonControlTypeId;
+            ret->vt = VT_I4;
         }
 
         return S_OK;
     }
 
-    IFACEMETHODIMP checkbox_uia::GetPatternProvider(PATTERNID id, IUnknown **ret)
+    IFACEMETHODIMP toggle_uia::GetPatternProvider(PATTERNID id, IUnknown **ret)
     {
         *ret = nullptr;
 
@@ -157,13 +160,13 @@ namespace simplytest
         return S_OK;
     }
 
-    IFACEMETHODIMP checkbox_uia::get_ProviderOptions(ProviderOptions *ret)
+    IFACEMETHODIMP toggle_uia::get_ProviderOptions(ProviderOptions *ret)
     {
         *ret = static_cast<ProviderOptions>(ProviderOptions_ServerSideProvider | ProviderOptions_UseComThreading);
         return S_OK;
     }
 
-    IFACEMETHODIMP checkbox_uia::get_HostRawElementProvider(IRawElementProviderSimple **ret)
+    IFACEMETHODIMP toggle_uia::get_HostRawElementProvider(IRawElementProviderSimple **ret)
     {
         return uia_core::get().UiaHostProviderFromHwnd(m_impl->parent->hwnd(), ret);
     }

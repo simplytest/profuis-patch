@@ -22,6 +22,16 @@ _The above comparison shows one of the default TD7.5 demo applications before an
 
 </div>
 
+## 📦 Installation
+
+To get started simply grab our latest [release](https://github.com/simplytest/profuis-patch/releases) or [build artifact](https://github.com/simplytest/profuis-patch/actions) and place the provided <kbd>dll</kbd> file into the directory of the target application.
+
+If done correctly, a `profui-patch.log` file should appear after executing the target application.
+
+> [!NOTE]
+> We currently _do not_ produce 32bit artifacts.
+
 ## 🔍 Resources
 
 The [data](data/) folder houses the IDA-Pro Database used to reverse engineer the <kbd>ProfUIS288u_td75.dll</kbd>.
+

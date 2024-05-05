@@ -12,11 +12,14 @@ namespace simplytest
 
     struct checkbox::impl
     {
-        static inline std::unordered_map<HWND, std::shared_ptr<checkbox>> instances;
+        using map_t = std::unordered_map<HWND, std::shared_ptr<checkbox>>;
 
       public:
-        HWND hwnd;
+        static inline lockpp::lock<map_t> instances;
+
+      public:
         lockpp::lock<box_state> state;
+        HWND hwnd;
 
       public:
         WNDPROC wnd_proc;
@@ -28,18 +31,20 @@ namespace simplytest
 
     LRESULT checkbox::impl::hk_wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
     {
-        if (!instances.contains(hwnd))
+        auto locked = instances.write();
+
+        if (!locked->contains(hwnd))
         {
             return 0;
         }
 
-        auto &self = *instances[hwnd]->m_impl;
+        auto &self = locked->at(hwnd)->m_impl;
         auto addr  = reinterpret_cast<std::uintptr_t>(hwnd);
 
         if (message == WM_DESTROY)
         {
             logger::get()->trace("[{:x}] received WM_DESTROY", addr);
-            instances.erase(hwnd);
+            locked->erase(hwnd);
 
             return 0;
         }
@@ -47,10 +52,10 @@ namespace simplytest
         if (message == WM_GETOBJECT)
         {
             logger::get()->trace("[{:x}] received WM_GETOBJECT", addr);
-            return uia_core::get().UiaReturnRawElementProvider(hwnd, wparam, lparam, self.provider);
+            return uia_core::get().UiaReturnRawElementProvider(hwnd, wparam, lparam, self->provider);
         }
 
-        return CallWindowProcW(self.wnd_proc, hwnd, message, wparam, lparam);
+        return CallWindowProcW(self->wnd_proc, hwnd, message, wparam, lparam);
     }
 
     checkbox::checkbox() : m_impl(std::make_unique<impl>()) {}
@@ -89,9 +94,10 @@ namespace simplytest
 
     void checkbox::update(checkable_data *data)
     {
-        auto *hwnd = data->object->hwnd;
+        auto instances = impl::instances.write();
+        auto *hwnd     = data->object->hwnd;
 
-        if (!impl::instances.contains(hwnd))
+        if (!instances->contains(hwnd))
         {
             logger::get()->info(L"creating instance {:x} (content: '{}')", reinterpret_cast<std::uintptr_t>(hwnd),
                                 data->text);
@@ -107,10 +113,10 @@ namespace simplytest
             state->m_impl->wnd_proc = reinterpret_cast<WNDPROC>(wnd_proc);
             SetWindowLongPtrW(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(impl::hk_wndproc));
 
-            impl::instances.emplace(hwnd, std::move(state));
+            instances->emplace(hwnd, std::move(state));
         }
 
-        auto &instance = impl::instances[hwnd];
+        auto &instance = instances->at(hwnd);
 
         if (instance->state() == data->state)
         {
@@ -118,7 +124,7 @@ namespace simplytest
         }
 
         const auto was_checked = instance->checked();
-        impl::instances[hwnd]->m_impl->state.assign(data->state);
+        instances->at(hwnd)->m_impl->state.assign(data->state);
 
         if (!uia_core::get().UiaClientsAreListening() || (was_checked && instance->checked()))
         {

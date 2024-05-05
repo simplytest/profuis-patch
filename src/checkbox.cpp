@@ -68,7 +68,7 @@ namespace simplytest
 
     void checkbox::toggle() const
     {
-        // TODO: Implement
+        SendMessageW(m_impl->hwnd, BM_SETCHECK, checked() ? BST_UNCHECKED : BST_CHECKED, 0);
     }
 
     HWND checkbox::hwnd() const

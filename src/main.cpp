@@ -1,5 +1,4 @@
 #include <lime/entrypoint.hpp>
-#include <lime/hooks/hook.hpp>
 #include <lime/module.hpp>
 
 #include <exports.hpp>
@@ -13,19 +12,17 @@ using simplytest::logger;
 void lime::load()
 {
     char original[MAX_PATH];
-    GetSystemWow64Directory(original, sizeof(original));
+    GetSystemDirectory(original, sizeof(original));
 
-    strcat_s(original, "\\winmm.dll");
+    strcat_s(original, "\\MSIMG32.dll");
     lime::proxy::setup(original);
 
-    logger::get()->debug("Redirecting to: {}", original);
-    logger::get()->info("Initialized proxy");
-
+    logger::get()->debug("redirecting to '{}'", original);
     auto module = lime::module::find("ProfUIS");
 
     if (!module)
     {
-        logger::get()->error("ProfUIS is not loaded");
+        logger::get()->error("could not find 'ProfUIS'");
         return;
     }
 
@@ -34,5 +31,5 @@ void lime::load()
 
 void lime::unload()
 {
-    logger::get()->info("Unloading...");
+    logger::get()->info("unloading");
 }

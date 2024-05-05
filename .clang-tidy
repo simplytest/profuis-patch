@@ -44,7 +44,8 @@ Checks: "*,
         -cppcoreguidelines-interfaces-global-init,
         -*-avoid-c-arrays,
         -hicpp-no-array-decay,
-        -*-to-pointer-decay
+        -*-to-pointer-decay,
+        -*-union-access
 "
 WarningsAsErrors: ''
 HeaderFilterRegex: ''

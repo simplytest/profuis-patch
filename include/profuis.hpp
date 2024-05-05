@@ -4,7 +4,7 @@
 
 namespace profuis
 {
-    struct CObject
+    struct c_object
     {
         char padding_00[64];
         HWND hwnd;
@@ -29,7 +29,9 @@ namespace profuis
     struct checkable_data
     {
         box_state state;
-        int padding_08;
-        CObject *object;
+        char padding_08[0x4];
+        c_object *object;
+        char padding_10[0x18];
+        LPCWSTR text;
     };
 } // namespace profuis

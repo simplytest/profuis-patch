@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 #include <spdlog/spdlog.h>
 
@@ -6,10 +7,7 @@ namespace simplytest
 {
     class logger
     {
-        struct impl;
-
-      private:
-        std::unique_ptr<impl> m_impl;
+        std::unique_ptr<spdlog::logger> m_logger;
 
       private:
         logger();

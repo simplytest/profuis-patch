@@ -1,0 +1,36 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+    paths-ignore:
+      - "**/*.md"
+
+name: 📦 Build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["cpp"]
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🧰 Build Dependencies
+        run: "pacman --noconfirm -Syu cmake gcc git make mingw-w64"
+
+      - name: 🔧 Compile
+        run: |
+          cmake -B build
+          cmake --build build --config Release
+
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            build/*.dll

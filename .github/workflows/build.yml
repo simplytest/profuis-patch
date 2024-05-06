@@ -15,6 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         language: ["cpp"]
+        arch: ["x86", "x64"]
 
     steps:
       - name: 📥 Checkout
@@ -25,12 +26,12 @@ jobs:
 
       - name: 🔧 Compile
         run: |
-          cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-x64.cmake
+          cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-${{ matrix.arch }}.cmake
           cmake --build build --config Release
 
       - name: 📤 Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build
+          name: build-${{ matrix.arch }}
           path: |
             build/*.dll

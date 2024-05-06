@@ -44,12 +44,12 @@ namespace simplytest
         IFACEMETHODIMP QueryInterface(REFIID, void **) override;
 
       public:
-        HRESULT Toggle() override;
+        HRESULT STDMETHODCALLTYPE Toggle() override;
 
       public:
-        HRESULT get_ToggleState(ToggleState *) override;
-        HRESULT get_CachedToggleState(ToggleState *) override;
-        HRESULT get_CurrentToggleState(ToggleState *) override;
+        HRESULT STDMETHODCALLTYPE get_ToggleState(ToggleState *) override;
+        HRESULT STDMETHODCALLTYPE get_CachedToggleState(ToggleState *) override;
+        HRESULT STDMETHODCALLTYPE get_CurrentToggleState(ToggleState *) override;
 
       public:
         IFACEMETHODIMP GetPropertyValue(PROPERTYID, VARIANT *) override;

@@ -1,16 +1,21 @@
 #pragma once
 
+#include "constants.hpp"
+
+#include <cstdint>
 #include <windows.h>
 
 namespace profuis
 {
+    static constexpr auto hwnd_offset = simplytest::arch == simplytest::architecture::x64 ? 0x40 : 0x20;
+
     struct c_object
     {
-        char padding_00[64];
+        char padding_00[hwnd_offset];
         HWND hwnd;
     };
 
-    enum class box_state
+    enum class box_state : std::uintptr_t
     {
         BOX_UNCHECKED                 = 0x0,
         BOX_CHECKED                   = 0x1,
@@ -29,9 +34,9 @@ namespace profuis
     struct checkable_data
     {
         box_state state;
-        char padding_08[0x4];
         c_object *object;
-        char padding_10[0x18];
+        LPARAM lparam;
+        RECT client_rect;
         LPCWSTR text;
     };
 } // namespace profuis

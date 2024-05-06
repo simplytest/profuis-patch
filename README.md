@@ -14,11 +14,12 @@ This project aims to fix this by patching the controls window procedure to retur
 
 <div align="center">
 
-| Before               | After               |
-| -------------------- | ------------------- |
-| ![](data/before.png) | ![](data/after.png) |
+| Before                     | After                     |
+| -------------------------- | ------------------------- |
+| ![](data/check_before.png) | ![](data/check_after.png) |
+| ![](data/radio_before.png) | ![](data/radio_after.png) |
 
-_The above comparison shows one of the default TD7.5 demo applications before and after applying our patch_ 
+_The above comparison shows one of the default TD7.5 demo applications before and after applying our patch once with the [Inspect Tool](https://learn.microsoft.com/en-us/windows/win32/winauto/inspect-objects) and once with the [Ranorex Spy](https://www.ranorex.com/ranorex-spy/)_ 
 
 </div>
 
@@ -27,9 +28,6 @@ _The above comparison shows one of the default TD7.5 demo applications before an
 To get started simply grab our latest [release](https://github.com/simplytest/profuis-patch/releases) or [build artifact](https://github.com/simplytest/profuis-patch/actions) and place the provided <kbd>dll</kbd> file into the directory of the target application.
 
 If done correctly, a `profui-patch.log` file should appear after executing the target application.
-
-> [!NOTE]
-> We currently _do not_ produce 32bit artifacts.
 
 ## 🔍 Resources
 

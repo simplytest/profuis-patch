@@ -17,9 +17,9 @@ namespace simplytest
         BOOL (*UiaClientsAreListening)();
 
       public:
-        HRESULT (*UiaHostProviderFromHwnd)(HWND, IRawElementProviderSimple **);
-        HRESULT (*UiaRaiseAutomationEvent)(IRawElementProviderSimple *, EVENTID);
-        LRESULT (*UiaReturnRawElementProvider)(HWND, WPARAM, LPARAM, IRawElementProviderSimple *);
+        HRESULT STDMETHODCALLTYPE (*UiaHostProviderFromHwnd)(HWND, IRawElementProviderSimple **);
+        HRESULT STDMETHODCALLTYPE (*UiaRaiseAutomationEvent)(IRawElementProviderSimple *, EVENTID);
+        LRESULT STDMETHODCALLTYPE (*UiaReturnRawElementProvider)(HWND, WPARAM, LPARAM, IRawElementProviderSimple *);
 
       public:
         static uia_core &get();

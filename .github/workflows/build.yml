@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🧰 Build Dependencies
         run: "pacman --noconfirm -Syu cmake gcc git make mingw-w64"
@@ -30,7 +30,7 @@ jobs:
           cmake --build build --config Release
 
       - name: 📤 Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.arch }}
           path: |

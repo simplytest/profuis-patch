@@ -10,6 +10,8 @@ namespace simplytest
 {
     void patch(const lime::module &profuis)
     {
+        logger::get()->info("patch target: {}", profuis.name());
+
         auto paint_check = profuis.find_symbol("?PaintCheckButton@CExtPaintManager");
         auto paint_radio = profuis.find_symbol("?PaintRadioButton@CExtPaintManager");
 

@@ -8,7 +8,7 @@
 namespace profuis
 {
     static constexpr auto hwnd_offset   = simplytest::arch == simplytest::architecture::x64 ? 0x40 : 0x20;
-    static constexpr auto state_padding = simplytest::arch == simplytest::architecture::x64 ? 0x04 : 0x00;
+    static constexpr auto state_padding = simplytest::arch == simplytest::architecture::x64 ? 0x06 : 0x02;
 
     struct c_object
     {
@@ -16,7 +16,7 @@ namespace profuis
         HWND hwnd;
     };
 
-    enum class box_state : std::uint32_t
+    enum class box_state : std::uint16_t
     {
         BOX_UNCHECKED                 = 0x0,
         BOX_CHECKED                   = 0x1,

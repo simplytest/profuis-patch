@@ -52,7 +52,6 @@ namespace simplytest
 
         if (message == WM_GETOBJECT)
         {
-            logger::get()->trace("[{:x}] received accessibility request", addr);
             return uia_core::get().UiaReturnRawElementProvider(hwnd, wparam, lparam, self->provider);
         }
 
@@ -101,8 +100,9 @@ namespace simplytest
 
         if (!instances->contains(hwnd))
         {
-            logger::get()->info(L"creating instance {:x} (content: '{}')", reinterpret_cast<std::uintptr_t>(hwnd),
-                                data->text);
+            logger::get()->info(L"creating instance {:x} (content: '{}', state: {})",
+                                reinterpret_cast<std::uintptr_t>(hwnd), data->text,
+                                static_cast<std::uint16_t>(data->state));
 
             auto state = std::shared_ptr<checkable>(new checkable);
 

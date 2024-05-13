@@ -135,8 +135,9 @@ namespace simplytest
         }
         else if (id == UIA_HelpTextPropertyId)
         {
-            ret->bstrVal = SysAllocString(L"https://github.com/simplytest/profuis-patch");
-            ret->vt      = VT_BSTR;
+            ret->bstrVal =
+                SysAllocString(L"https://github.com/simplytest/profuis-patch - Noah Karnel (https://github.com/Curve)");
+            ret->vt = VT_BSTR;
         }
         else if (id == UIA_ControlTypePropertyId)
         {

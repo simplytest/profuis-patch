@@ -36,7 +36,7 @@ endif()
 # Include directories
 # --------------------------------------------------------------------------------------------------------
 
-target_include_directories(${PROJECT_NAME} PUBLIC  "include")
+target_include_directories(${PROJECT_NAME} PUBLIC "include")
 
 # --------------------------------------------------------------------------------------------------------
 # Link Dependencies and Add Sources
@@ -53,7 +53,7 @@ CPMFindPackage(
 
 CPMFindPackage(
   NAME           lime
-  VERSION        4.0
+  VERSION        5.0
   GIT_REPOSITORY "https://github.com/Curve/lime"
 )
 

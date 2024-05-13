@@ -10,7 +10,7 @@ namespace simplytest
 {
     void patch(const lime::module &profuis)
     {
-        logger::get()->info("patch target: {}", profuis.name());
+        logger::get()->info("target: {}", profuis.name());
 
         auto paint_check = profuis.find_symbol("?PaintCheckButton@CExtPaintManager");
         auto paint_radio = profuis.find_symbol("?PaintRadioButton@CExtPaintManager");
@@ -25,7 +25,6 @@ namespace simplytest
         logger::get()->info("check_radio is {:x}", paint_radio.value());
 
         using architecture::x64;
-
         using signature                  = void(void *, void *, profuis::checkable_data *);
         static constexpr auto convention = arch == x64 ? lime::convention::automatic : lime::convention::c_thiscall;
 
@@ -56,5 +55,7 @@ namespace simplytest
             logger::get()->error("failed to create radio hook: {}", static_cast<int>(radio_hook.error()));
             return;
         }
+
+        logger::get()->info("hooks installed");
     }
 } // namespace simplytest

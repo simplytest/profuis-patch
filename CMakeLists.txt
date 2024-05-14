@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(profui-patch LANGUAGES CXX VERSION 1.0)
+project(profui-patch LANGUAGES CXX VERSION 1.1)
 
 # --------------------------------------------------------------------------------------------------------
 # Setup Cross-Compilation on Linux

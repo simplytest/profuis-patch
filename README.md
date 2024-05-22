@@ -30,22 +30,23 @@ _The above comparison shows one of the default TD7.5 demo applications before an
 <tr>
 <th>Component</th>
 <th>Status</th>
+<th>Changes</th>
 </tr>
 <tr>
 <td>Check-Button</td>
 <td>✅</td>
+<td>Report as Check-Button, expose checked value, add toggle action</td>
 </tr>
 <tr>
 <td>Radio-Button</td>
 <td>✅</td>
+<td>Report as Radio-Button, expose checked value, add toggle action</td>
 </tr>
 <tr>
-<td colspan="2">
-<p>
-
-[Request more!](https://github.com/simplytest/profuis-patch/issues/new)
-
-</p>
+<td colspan="3">
+<a href="https://github.com/simplytest/profuis-patch/issues/new" target="_blank">
+Request more!
+</a>
 </td>
 </tr>
 </table>

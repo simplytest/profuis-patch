@@ -68,7 +68,7 @@ namespace simplytest
     void checkable::toggle() const
     {
         logger::get()->debug("[{:x}] received toggle request");
-        SendMessageW(m_impl->hwnd, BM_SETCHECK, checked() ? BST_UNCHECKED : BST_CHECKED, 0);
+        PostMessageW(m_impl->hwnd, BM_CLICK, 0, 0);
     }
 
     HWND checkable::hwnd() const

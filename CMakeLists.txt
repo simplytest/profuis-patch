@@ -24,7 +24,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 CXX_EXTENSIONS OFF CXX_STANDARD_REQUIRED ON)
 
 if (MINGW)
-    target_link_libraries(${PROJECT_NAME} PRIVATE "-Wl,--enable-stdcall-fixup" -static -static-libgcc -static-libstdc++)
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-Wl,--enable-stdcall-fixup")
 endif()
 
 if (NOT MSVC AND NOT IS_CI)
@@ -44,24 +44,24 @@ target_include_directories(${PROJECT_NAME} PUBLIC "include")
 
 include("cmake/cpm.cmake")
 
-CPMFindPackage(
+CPMAddPackage(
   NAME           spdlog
-  VERSION        1.14.0
+  VERSION        1.14.1
   GIT_REPOSITORY "https://github.com/gabime/spdlog"
   OPTIONS        "SPDLOG_WCHAR_SUPPORT ON"
 )
 
-CPMFindPackage(
+CPMAddPackage(
   NAME           lime
-  VERSION        5.0
+  VERSION        6.0
   GIT_REPOSITORY "https://github.com/Curve/lime"
 )
 
-CPMFindPackage(
+CPMAddPackage(
   NAME           lockpp
   VERSION        2.8
   GIT_REPOSITORY "https://github.com/Curve/lockpp"
 )
 
 lime_mingw_generate_proxy(${PROJECT_NAME} "exports.lime")
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog cr::lime cr::lockpp)
+target_link_libraries(${PROJECT_NAME} PUBLIC cr::lime cr::lockpp spdlog::spdlog)

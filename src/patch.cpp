@@ -31,19 +31,18 @@ namespace simplytest
         using signature                  = void(void *, void *, profuis::checkable_data *);
         static constexpr auto convention = arch == x64 ? cc_generic : cc_thiscall;
 
+        auto check_hook =
+            lime::make_hook<signature, convention>(*paint_check,
+                                                   [](auto &hook, void *thiz, void *cdc, profuis::checkable_data *data)
+                                                   {
+                                                       checkable::update(data, checkable_type::check);
+                                                       return hook.original()(thiz, cdc, data);
+                                                   });
         auto radio_hook =
             lime::make_hook<signature, convention>(*paint_radio,
                                                    [](auto &hook, void *thiz, void *cdc, profuis::checkable_data *data)
                                                    {
                                                        checkable::update(data, checkable_type::radio);
-                                                       return hook.original()(thiz, cdc, data);
-                                                   });
-
-        auto check_hook =
-            lime::make_hook<signature, convention>(*paint_radio,
-                                                   [](auto &hook, void *thiz, void *cdc, profuis::checkable_data *data)
-                                                   {
-                                                       checkable::update(data, checkable_type::check);
                                                        return hook.original()(thiz, cdc, data);
                                                    });
 

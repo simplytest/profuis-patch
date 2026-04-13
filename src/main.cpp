@@ -6,6 +6,7 @@
 #include "patch.hpp"
 
 #include <windows.h>
+#include <shlobj.h>
 
 namespace fs = std::filesystem;
 
@@ -14,11 +15,19 @@ using namespace lime::literals;
 
 void lime::load()
 {
-    char original[MAX_PATH];
-    GetSystemDirectory(original, sizeof(original));
+    auto root = PWSTR{};
 
-    lime::exports::init(fs::path{original} / "MSIMG32.dll");
-    logger::get()->debug("redirecting to '{}'", original);
+    if (const auto status = SHGetKnownFolderPath(FOLDERID_System, 0, NULL, &root); status != S_OK)
+    {
+        logger::get()->error("failed to retrieve system path");
+        return;
+    }
+
+    auto target = fs::path{root} / "MSIMG32.dll";
+    CoTaskMemFree(root);
+
+    lime::exports::init(target);
+    logger::get()->debug("redirecting to '{}'", target.string());
 
     auto module = lime::lib::find("ProfUIS"_re);
 

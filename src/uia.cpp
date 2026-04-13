@@ -127,7 +127,7 @@ namespace simplytest
         using enum checkable_type;
 
         static constexpr auto frameworkId = L"SimplyTest: profuis-patch (https://github.com/simplytest/profuis-patch)";
-        static constexpr auto frameworkHelp = L"Noah Karnel (https://github.com/Curve)";
+        static constexpr auto helpText    = L"Provided from ProfUIs-Patch, by Noah Karnel (https://github.com/Curve)";
 
         ret->vt = VT_EMPTY;
 
@@ -138,7 +138,7 @@ namespace simplytest
         }
         else if (id == UIA_HelpTextPropertyId)
         {
-            ret->bstrVal = SysAllocString(frameworkHelp);
+            ret->bstrVal = SysAllocString(helpText);
             ret->vt      = VT_BSTR;
         }
         else if (id == UIA_ControlTypePropertyId)

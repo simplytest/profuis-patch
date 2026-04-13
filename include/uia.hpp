@@ -9,11 +9,8 @@ namespace simplytest
 {
     class checkable;
 
-    class uia_core
+    struct uia_core
     {
-        uia_core();
-
-      public:
         BOOL (*UiaClientsAreListening)();
 
       public:
@@ -25,7 +22,7 @@ namespace simplytest
         static uia_core &get();
     };
 
-    class toggle_uia : public IRawElementProviderSimple, public IUIAutomationTogglePattern, public IToggleProvider
+    struct toggle_uia : IRawElementProviderSimple, IUIAutomationTogglePattern, IToggleProvider
     {
         struct impl;
 
@@ -33,10 +30,10 @@ namespace simplytest
         std::unique_ptr<impl> m_impl;
 
       public:
-        virtual ~toggle_uia();
+        toggle_uia(std::shared_ptr<checkable>, checkable_type);
 
       public:
-        toggle_uia(std::shared_ptr<checkable>, checkable_type);
+        virtual ~toggle_uia();
 
       public:
         IFACEMETHODIMP_(ULONG) AddRef() override;

@@ -4,8 +4,9 @@
 #include "uia.hpp"
 
 #include <lockpp/lock.hpp>
-#include <unordered_map>
+
 #include <mutex>
+#include <unordered_map>
 
 namespace simplytest
 {
@@ -16,18 +17,18 @@ namespace simplytest
         using map_t = std::unordered_map<HWND, std::shared_ptr<checkable>>;
 
       public:
-        static inline lockpp::lock<map_t, std::recursive_mutex> instances{};
-
-      public:
-        lockpp::lock<box_state> state;
         HWND hwnd;
-
-      public:
-        toggle_uia *provider;
         WNDPROC wnd_proc;
 
       public:
+        toggle_uia *provider;
+        lockpp::lock<box_state> state;
+
+      public:
         static LRESULT hk_wndproc(HWND, UINT, WPARAM, LPARAM);
+
+      public:
+        static inline lockpp::lock<map_t, std::recursive_mutex> instances{};
     };
 
     LRESULT checkable::impl::hk_wndproc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
@@ -58,7 +59,7 @@ namespace simplytest
         return CallWindowProcW(self->wnd_proc, hwnd, message, wparam, lparam);
     }
 
-    checkable::checkable() : m_impl(std::make_unique<impl>()) {}
+    checkable::checkable(std::unique_ptr<impl> data) : m_impl(std::move(data)) {}
 
     checkable::~checkable()
     {
@@ -95,8 +96,8 @@ namespace simplytest
 
     void checkable::update(checkable_data *data, checkable_type type)
     {
-        auto instances = impl::instances.write();
-        auto *hwnd     = data->object->hwnd;
+        auto instances   = impl::instances.write();
+        auto *const hwnd = data->object->hwnd;
 
         if (!instances->contains(hwnd))
         {
@@ -104,17 +105,13 @@ namespace simplytest
                                 reinterpret_cast<std::uintptr_t>(hwnd), data->text,
                                 static_cast<std::uint16_t>(data->state));
 
-            auto state = std::shared_ptr<checkable>(new checkable);
+            auto wnd_proc = GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
+            auto state = std::make_shared<checkable>(std::make_unique<impl>(hwnd, reinterpret_cast<WNDPROC>(wnd_proc)));
 
-            state->m_impl->hwnd = hwnd;
             state->m_impl->state.assign(data->state);
             state->m_impl->provider = new toggle_uia(state, type);
 
-            auto wnd_proc = GetWindowLongPtrW(hwnd, GWLP_WNDPROC);
-
-            state->m_impl->wnd_proc = reinterpret_cast<WNDPROC>(wnd_proc);
             SetWindowLongPtrW(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(impl::hk_wndproc));
-
             instances->emplace(hwnd, std::move(state));
         }
 

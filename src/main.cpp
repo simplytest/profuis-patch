@@ -1,26 +1,28 @@
+#include <lime/lib.hpp>
+#include <lime/exports.hpp>
 #include <lime/entrypoint.hpp>
-#include <lime/module.hpp>
-
-#include <exports.hpp>
-#include <windows.h>
 
 #include "logger.hpp"
 #include "patch.hpp"
 
+#include <windows.h>
+
+namespace fs = std::filesystem;
+
 using simplytest::logger;
+using namespace lime::literals;
 
 void lime::load()
 {
     char original[MAX_PATH];
     GetSystemDirectory(original, sizeof(original));
 
-    strcat_s(original, "\\MSIMG32.dll");
-    lime::proxy::setup(original);
-
+    lime::exports::init(fs::path{original} / "MSIMG32.dll");
     logger::get()->debug("redirecting to '{}'", original);
-    auto module = lime::module::find("ProfUIS");
 
-    if (!module)
+    auto module = lime::lib::find("ProfUIS"_re);
+
+    if (!module.has_value())
     {
         logger::get()->error("could not find 'ProfUIS'");
         return;

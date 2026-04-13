@@ -1,8 +1,8 @@
 #pragma once
 
-#include <lime/module.hpp>
+#include <lime/lib.hpp>
 
 namespace simplytest
 {
-    void patch(const lime::module &);
+    void patch(const lime::lib &);
 }

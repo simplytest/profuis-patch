@@ -1,37 +1,35 @@
 #include "uia.hpp"
 
+#include <lime/lib.hpp>
+
 #include <atomic>
-#include <lime/module.hpp>
+#include <optional>
 
 namespace simplytest
 {
-    uia_core::uia_core() = default;
-
     uia_core &uia_core::get()
     {
-        static std::unique_ptr<uia_core> instance;
+        using namespace lime::literals;
+
+        static std::optional<uia_core> instance;
 
         if (instance)
         {
             return *instance;
         }
 
-        instance = std::unique_ptr<uia_core>(new uia_core);
-
         // We need to load the automation core dynamically because we depend on building with MinGW...
-        auto core = lime::module::load("UIAutomationCore.dll");
+        auto core = lime::lib::load("UIAutomationCore.dll").value();
 
-        instance->UiaClientsAreListening =
-            reinterpret_cast<decltype(UiaClientsAreListening)>(core->symbol("UiaClientsAreListening"));
+#define UIAFunc(name)                                                                                                  \
+    #name, std::type_identity<decltype(name)> {}
 
-        instance->UiaHostProviderFromHwnd =
-            reinterpret_cast<decltype(UiaHostProviderFromHwnd)>(core->symbol("UiaHostProviderFromHwnd"));
-
-        instance->UiaRaiseAutomationEvent =
-            reinterpret_cast<decltype(UiaRaiseAutomationEvent)>(core->symbol("UiaRaiseAutomationEvent"));
-
-        instance->UiaReturnRawElementProvider =
-            reinterpret_cast<decltype(UiaReturnRawElementProvider)>(core->symbol("UiaReturnRawElementProvider"));
+        instance = uia_core{
+            .UiaClientsAreListening      = core[UIAFunc(UiaClientsAreListening)].value(),
+            .UiaHostProviderFromHwnd     = core[UIAFunc(UiaHostProviderFromHwnd)].value(),
+            .UiaRaiseAutomationEvent     = core[UIAFunc(UiaRaiseAutomationEvent)].value(),
+            .UiaReturnRawElementProvider = core[UIAFunc(UiaReturnRawElementProvider)].value(),
+        };
 
         return *instance;
     }
@@ -46,8 +44,6 @@ namespace simplytest
         std::atomic_size_t ref_count;
     };
 
-    toggle_uia::~toggle_uia() = default;
-
     toggle_uia::toggle_uia(std::shared_ptr<checkable> parent, checkable_type type) : m_impl(std::make_unique<impl>())
     {
         m_impl->parent = std::move(parent);
@@ -55,6 +51,8 @@ namespace simplytest
 
         get_CurrentToggleState(&m_impl->cached);
     }
+
+    toggle_uia::~toggle_uia() = default;
 
     IFACEMETHODIMP_(ULONG) toggle_uia::AddRef()
     {
@@ -126,24 +124,27 @@ namespace simplytest
 
     IFACEMETHODIMP toggle_uia::GetPropertyValue(PROPERTYID id, VARIANT *ret)
     {
+        using enum checkable_type;
+
+        static constexpr auto frameworkId = L"SimplyTest: profuis-patch (https://github.com/simplytest/profuis-patch)";
+        static constexpr auto frameworkHelp = L"Noah Karnel (https://github.com/Curve)";
+
         ret->vt = VT_EMPTY;
 
         if (id == UIA_FrameworkIdPropertyId)
         {
-            ret->bstrVal = SysAllocString(L"SimplyTest: profuis-patch");
+            ret->bstrVal = SysAllocString(frameworkId);
             ret->vt      = VT_BSTR;
         }
         else if (id == UIA_HelpTextPropertyId)
         {
-            ret->bstrVal =
-                SysAllocString(L"https://github.com/simplytest/profuis-patch - Noah Karnel (https://github.com/Curve)");
-            ret->vt = VT_BSTR;
+            ret->bstrVal = SysAllocString(frameworkHelp);
+            ret->vt      = VT_BSTR;
         }
         else if (id == UIA_ControlTypePropertyId)
         {
-            ret->lVal =
-                m_impl->type == checkable_type::check ? UIA_CheckBoxControlTypeId : UIA_RadioButtonControlTypeId;
-            ret->vt = VT_I4;
+            ret->lVal = m_impl->type == check ? UIA_CheckBoxControlTypeId : UIA_RadioButtonControlTypeId;
+            ret->vt   = VT_I4;
         }
 
         return S_OK;

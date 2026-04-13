@@ -2,8 +2,9 @@
 
 #include "profuis.hpp"
 
-#include <windows.h>
 #include <memory>
+
+#include <windows.h>
 
 namespace simplytest
 {
@@ -23,8 +24,8 @@ namespace simplytest
       private:
         std::unique_ptr<impl> m_impl;
 
-      private:
-        checkable();
+      public:
+        checkable(std::unique_ptr<impl>);
 
       public:
         ~checkable();

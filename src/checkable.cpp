@@ -68,7 +68,7 @@ namespace simplytest
 
     void checkable::toggle() const
     {
-        logger::get()->debug("[{:x}] received toggle request");
+        logger::get()->debug("[{:x}] received toggle request", reinterpret_cast<std::uintptr_t>(m_impl->hwnd));
         PostMessageW(m_impl->hwnd, BM_CLICK, 0, 0);
     }
 

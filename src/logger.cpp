@@ -25,7 +25,7 @@ namespace simplytest
         const auto log_path = fs::current_path() / "profui-patch.log";
         auto err            = std::error_code{};
 
-        if (!fs::remove(log_path, err) && err != std::errc::no_such_file_or_directory)
+        if (!fs::remove(log_path, err) && err != std::errc{} && err != std::errc::no_such_file_or_directory)
         {
             m_logger->error("could not delete log ('{}'): {}", log_path.string(), err.message());
             return;
